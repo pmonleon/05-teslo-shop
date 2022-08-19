@@ -1,5 +1,11 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## upgrade version nextjs - 
+yarn upgrade-interactive --latest
+
+## add dependence develop -
+yarn add -D @types/react-slideshow-image
+
 ## Getting Started
 
 First, run the development server:

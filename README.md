@@ -1,9 +1,59 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## upgrade version nextjs - 
+```
+crear aechivo: docker-compose
+service: teslodb
+nombre del contenedor: teslo-database
+volumen: mongo
+crear .env
+
+```
+
+## Dockers compose -> imagen data base Mongo
+
+para correr localmente , se necesita correr la base de datos
+
+```
+docker-compose up -d
+
+```
+
+- el -d, significa **detached**
+- data base mongodb URL local:
+
+```
+mongodb://localhost:27017/teslodb
+```
+
+## Configurar variables de entorno
+
+Renombrarv archivo : **.env.template** a **.env**
+
+## Reconstruir modulos de node -> levantar nextjs
+
+```
+yarn install
+yarn dev
+```
+
+## Llenar la base de datos con info de prueba
+
+llamar a:
+
+```
+http://localhost:3000/api/seed
+```
+
+## Create Snipets:
+
+comand + shift + p -> option user snipets
+
+## upgrade version nextjs -
+
 yarn upgrade-interactive --latest
 
 ## add dependence develop -
+
 yarn add -D @types/react-slideshow-image
 
 ## Getting Started

@@ -1,4 +1,4 @@
-import { Card, CardActionArea, CardMedia, Grid, Link, Typography } from '@mui/material'
+import { Card, CardActionArea, CardMedia, Chip, Grid, Link, Typography } from '@mui/material'
 import { Box } from '@mui/system';
 import NextLink from 'next/link';
 import React, { FC, useMemo, useState } from 'react'
@@ -30,14 +30,30 @@ export const ProductCard: FC<Props> = ({product}) => {
         <Card>
              <NextLink href={`/product/${product.slug}`} passHref prefetch={false}>
                 <Link>
+                    
                     <CardActionArea>
-                    <CardMedia 
-                        component={'img'}
-                        image={productImage}
-                        alt={product.title}
-                        className='fadeIn'
-                        onLoad={() => setIsImageLoaded(true)}
-                        />
+                        {
+                            product.inStock === 0 && (
+                            <Chip 
+                            color='primary'
+                            label= "No hay disponibles"
+                            sx={{
+                                position:'absolute',
+                                zIndex: 99,
+                                top: 5,
+                                left: 5,
+                                height:20
+                            }}
+                        />)
+                        }
+                        
+                        <CardMedia 
+                            component={'img'}
+                            image={productImage}
+                            alt={product.title}
+                            className='fadeIn'
+                            onLoad={() => setIsImageLoaded(true)}
+                            />
                     </CardActionArea>
                 </Link>
             </NextLink>

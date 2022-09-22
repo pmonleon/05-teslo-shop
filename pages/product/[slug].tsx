@@ -1,12 +1,12 @@
-import { Box, Button, Grid, Typography } from '@mui/material'
+import { Box, Button, Chip, Grid, Typography } from '@mui/material'
 import { NextPage } from 'next'
 // import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useContext, useState } from 'react'
 import { ShopLayout } from '../../components/layouts'
 import { ProductSlideShow, SizesSelector } from '../../components/products'
 import { FullScreenLoading, ItemCounter } from '../../components/ui'
 // import { useProdducts } from '../../hooks'
-import { IProduct } from '../../interfaces'
+import { ICartProduct, IProduct, ISize } from '../../interfaces'
 // You should use getServerSideProps when:
 // - Only if you need to pre-render a page whose data must be fetched at request time
 import { GetServerSideProps } from 'next'
@@ -19,6 +19,8 @@ import { GetStaticProps } from 'next'
 // You should use getStaticPaths if you’re statically pre-rendering pages that use dynamic routes
 import { GetStaticPaths } from 'next'
 import { dbProducts } from '../../database'
+import { useRouter } from 'next/router'
+import { CartContext } from '../../context'
 
 type Props = {
   product: IProduct
@@ -27,9 +29,34 @@ type Props = {
 
 const ProductPage: NextPage<Props> = ({product}) => {
 
-   // const { query } = useRouter()
+   const { query, push } = useRouter()
   // const { products: product , isError, isLoading} = useProdducts(`/products/${query.slug}`)
+  const { addProductToCart } = useContext(CartContext)
+  const [tempCartProduct, settempCartProduct] = useState<ICartProduct>({
+    _id: product._id,
+    image: product.images[0],
+    price: product.price ,
+    size: undefined,
+    slug: product.slug,
+    title: product.title,
+    gender: product.gender,
+    quantity:1
+  })
 
+  const selectedSize = (size:ISize) => {
+    settempCartProduct({...tempCartProduct, size})
+  }
+
+  const updatedQuantity = (data:number) => {
+      settempCartProduct({...tempCartProduct, quantity: tempCartProduct.quantity + data})
+  }
+
+  const onAddProduct = () => {
+    if (!tempCartProduct) { return }
+    // disptach action context add to cart
+    addProductToCart(tempCartProduct)
+    push('/cart')
+  }
   
 
   return (
@@ -49,17 +76,35 @@ const ProductPage: NextPage<Props> = ({product}) => {
                 <Box sx={{my:2}}>
                   <Typography variant={'subtitle2'}>Cantidad</Typography>
                   {/* ItemCounter */}
-                  <ItemCounter />
+                  <ItemCounter 
+                    currentValue={tempCartProduct.quantity} 
+                    onUpdatedQuantity={ updatedQuantity } 
+                    maxValue={product.inStock > 10 ? 10 : product.inStock}
+                    />
                   <SizesSelector 
                     sizes={product.sizes} 
-                   // selectedSize={product.sizes[0]} 
+                    selectedSize={tempCartProduct.size}
+                    onSelectedSize = {(size) => selectedSize(size)}
                   />
                 </Box>
                 {/* Agragar al carrito */}
-                <Button color={'secondary'} className='circular-btn'>
-                  Agregar al carrito
-                </Button>
-                {/* <Chip label='No hay disponibles' color={'error'} variant={'outlined'} /> */}
+                {
+                  product.inStock > 0 
+                  ? (
+                    <Button 
+                      color={'secondary'} 
+                      disabled={!tempCartProduct.size}
+                      onClick={ onAddProduct }
+                      className='circular-btn'>
+                       { !!tempCartProduct.size ? 'Agregar al carrito'  : 'Seleccione una talla'}
+                    </Button>
+                    )
+                  : (
+                    <Chip label='No hay disponibles' color={'error'} variant={'outlined'} /> 
+                  )
+                }
+              
+               
                 {/* Descripcion */}
                 <Box sx={{mt:3}}>
                     <Typography variant={'subtitle2'}>Descripción</Typography>

@@ -5,11 +5,13 @@ import { useRouter } from 'next/router';
 import React, { useContext, useState } from 'react'
 import { ROUTES } from '../../constants/routes';
 import { UiContext } from '../../context';
+import { CartContext } from '../../context/cart/CartContext';
 
 
 export const Navbar = () => {
   const { asPath, push } =  useRouter()
   const { toggleSideMenu } = useContext(UiContext)
+  const { numberOfItems } = useContext(CartContext)
 
   const [searchTerm, setsearchTerm] = useState('')
   const [isSearchVisible, setIsSearchVisible] = useState(false)
@@ -113,7 +115,7 @@ export const Navbar = () => {
        <NextLink href={'/cart'} passHref>
           <Link>
             <IconButton>
-              <Badge badgeContent={2} color='secondary'>
+              <Badge badgeContent={numberOfItems > 9 ? '+9' : numberOfItems } color='secondary'>
                 <ShoppingCartOutlined />
               </Badge>
             </IconButton>

@@ -26,7 +26,7 @@ const productSchema = new Schema(
         values: ["shirts", "pants", "hoodies", "hats"],
         message: "{VALUE} no es un tipo permitido",
       },
-      default: "M",
+      default: "shirts",
     },
     gender: {
       type: String,
@@ -34,7 +34,7 @@ const productSchema = new Schema(
         values: ["men", "women", "kid", "unisex"],
         message: "{VALUE} no es un tipo permitido",
       },
-      default: "M",
+      default: "men",
     },
   },
   {

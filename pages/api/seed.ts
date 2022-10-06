@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { db, seedDataBase } from "../../database";
-import { Product } from "../../models";
+import { Product, User } from "../../models";
 
 /***
  * Archivo solo para desarrollo
@@ -22,8 +22,13 @@ export default async function handler(
   }
 
   await db.connect();
+  // Productos
   await Product.deleteMany();
   await Product.insertMany(seedDataBase.initialData.products);
+  // Usuarios
+  console.log("usuario");
+  await User.deleteMany();
+  await User.insertMany(seedDataBase.initialData.users);
   await db.disconnect();
   res.status(200).json({ msg: "Proceso ejecutado correctamente" });
 }

@@ -10,19 +10,36 @@ interface Props {
 }
 
 export interface CartState {
+    isLoaded: boolean;
     cart: ICartProduct[] | [];
     numberOfItems: number;
     subtotal: number;
     tax: number;
     total: number;
+    shippingAddres?: ShippingAddress
+}
+
+export interface ShippingAddress {
+  
+    firstName:string,
+    lastName:string,
+    address:string,
+    address2:string,
+    zip:string,
+    city:string,
+    country:string,
+    telephone:string
+  
 }
 
 const CART_INITIAL_STATE: CartState = {
+    isLoaded:false,
     cart: [],
     numberOfItems: 0,
     subtotal: 0,
     tax: 0,
-    total: 0
+    total: 0,
+    shippingAddres: undefined
 }
 
 
@@ -39,6 +56,28 @@ export const CartProvider: FC<Props> = ({children}) => {
       }) 
     }        
   }, [])
+
+  useEffect(() => {
+
+    if ( !!Cookie.get('firstName')) {
+      
+      const cookieAddress = {
+        firstName : Cookie.get('firstName') || '',
+        lastName : Cookie.get('lastName') || '',
+        zip : Cookie.get('zip') || '',
+        city : Cookie.get('city') || '',
+        country : Cookie.get('country') || '',
+        telephone : Cookie.get('telephone') || '',
+        address : Cookie.get('address') || '',
+        address2 : Cookie.get('address2') || '',
+      }
+      dispatch({
+        type: '[Cart] - Load cart addres from cookies | storage',
+        payload: cookieAddress
+      }) 
+    }
+  }, [])
+  
   
 
   useEffect(() => {
@@ -83,7 +122,22 @@ export const CartProvider: FC<Props> = ({children}) => {
   const updateCartQuantity = (product: ICartProduct) => {
       dispatch({
         type: "[Cart] - Update cart quantity",
-        payload: product
+        payload: product 
+      })
+  }
+  const updateCartAddress = ( data:ShippingAddress) => {
+        
+      Cookie.set('firstName', data.firstName)
+      Cookie.set('lastName', data.lastName)
+      Cookie.set('zip', data.zip)
+      Cookie.set('city', data.city)
+      Cookie.set('country', data.country)
+      Cookie.set('telephone', data.telephone)
+      Cookie.set('address', data.address)
+      Cookie.set('address2', data.address2 || '')
+      dispatch({
+        type: "[Cart] - Update cart address",
+        payload: data
       })
   }
 
@@ -96,6 +150,14 @@ export const CartProvider: FC<Props> = ({children}) => {
 
   const cleanCartAndStorage = () => {
     Cookie.remove('cart')
+    Cookie.remove('firstName')
+    Cookie.remove('lastName')
+    Cookie.remove('zip')
+    Cookie.remove('city')
+    Cookie.remove('country')
+    Cookie.remove('telephone')
+    Cookie.remove('address') 
+    Cookie.remove('address2')
     dispatch({
       type:"[Cart] - Clean cart and cookies | storage"
     })
@@ -108,6 +170,7 @@ export const CartProvider: FC<Props> = ({children}) => {
            // methods
            addProductToCart,
            updateCartQuantity,
+           updateCartAddress,
            removeCartProduct,
            cleanCartAndStorage
        }}

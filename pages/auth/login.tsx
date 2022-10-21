@@ -19,7 +19,7 @@ type FormData = {
 
 const LoginPage:NextPage = () => {
     const { loginUser } = useContext(AuthContext)
-    const { replace } = useRouter()
+    const { replace, query} = useRouter()
     const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>();
     const [showError, setshowError] = useState(false)
     const onLoginUser: SubmitHandler<FormData> = async({email, password}) => { 
@@ -29,7 +29,7 @@ const LoginPage:NextPage = () => {
             setshowError(true)
             return
         }
-        replace('/')
+        !!query?.page ? replace(query.page.toLocaleString()) : replace('/')
         
         // try {
         //     // TODO grabar user info en un context de auth
@@ -103,7 +103,7 @@ const LoginPage:NextPage = () => {
                         </Button>              
                     </Grid>
                     <Grid item xs={12} display={'flex'} justifyContent={'end'}>
-                        <NextLink href={'/auth/register'} passHref>
+                        <NextLink href={ !!query?.page ? `/auth/register?page=${query.page?.toLocaleString()}` : '/auth/register'} passHref>
                             <Link underline='always'>
                                 ¿No tienes cuenta?
                             </Link>

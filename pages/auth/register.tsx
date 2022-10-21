@@ -21,7 +21,7 @@ type FormData = {
 
 const RegisterPage:NextPage = () => {
     const { registerUser } = useContext(AuthContext)
-    const { replace } = useRouter()
+    const { replace, query} = useRouter()
     const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>();
     const [showError, setshowError] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
@@ -35,7 +35,7 @@ const RegisterPage:NextPage = () => {
             setshowError(true)
             return
         }
-        replace('/')
+         !!query?.page ? replace(query.page.toLocaleString()) : replace('/')
         // try {
         //     const { data } = await tesloApi.post('/user/register', {name, email, password})
         //     const { token , user } = data as {token:string, user:string}
@@ -131,7 +131,7 @@ const RegisterPage:NextPage = () => {
                             </Button>              
                         </Grid>
                         <Grid item xs={12} display={'flex'} justifyContent={'end'}>
-                            <NextLink href={'/auth/login'} passHref>
+                            <NextLink href={ !!query?.page ? `/auth/login?page=${query.page.toLocaleString()}` : '/auth/login'} passHref>
                                 <Link underline='always'>
                                     ¿Ya tienes cuenta?
                                 </Link>

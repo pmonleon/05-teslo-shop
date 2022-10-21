@@ -20,7 +20,7 @@ export const authReducer = (
     case "Auth - Logout":
       return {
         ...state,
-        isLoggedIn: true,
+        isLoggedIn: false,
         user: undefined,
       };
 

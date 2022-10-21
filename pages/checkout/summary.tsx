@@ -1,10 +1,23 @@
 import { Box, Button, Card, CardContent, Divider, Grid, Link, Typography } from '@mui/material';
+import { count } from 'console';
+import { GetServerSideProps, NextPage } from 'next';
 import NextLink from 'next/link';
-import React from 'react'
+import React, { useContext, useMemo } from 'react'
 import { CartList, OrdenSummary } from '../../components/cart';
 import { ShopLayout } from '../../components/layouts/ShopLayout';
+import { CartContext } from '../../context';
+import { jwt } from '../../utils';
+import { countries } from '../../utils/countries';
 
-const SummaryPage = () => {
+const SummaryPage:NextPage = () => {
+  const { shippingAddres, numberOfItems } = useContext(CartContext)
+
+  if (!shippingAddres) { return <></> }
+  const { firstName, lastName, address, address2, city, country, zip, telephone } = shippingAddres
+
+
+  const countryName = useMemo(() => countries.filter( item => item.code === country )[0].name, [countries])
+
   return (
     <ShopLayout title='Resumen de orden' pageDescriptiom='Resumen de la orden'>
       <Typography variant='h1' component={'h1'}>Resumen de la orden</Typography>
@@ -17,7 +30,7 @@ const SummaryPage = () => {
             <Card className='sumary-card'>
               <CardContent>
                 <Typography variant='h2'>
-                  Resumen (3 productos)
+                  Resumen ({numberOfItems} {' '} {numberOfItems > 1 ? 'productos' : 'producto'})
                 </Typography>
 
                 <Divider sx={{my: 2}}/>
@@ -30,12 +43,12 @@ const SummaryPage = () => {
                         </Link>
                     </NextLink>
                 </Box>
-                
-                <Typography >Luis Torres</Typography>
-                <Typography >323 Algun lugar</Typography>
-                <Typography >StyllVillage, HT-124</Typography>
-                <Typography >Costa Rica</Typography>
-                <Typography >+31 6234517</Typography>
+              
+                <Typography >{ firstName } { lastName }</Typography>
+                <Typography >{ address } { !!address2 ? ', ' + address2  : '' } </Typography>
+                <Typography >{ city }, {zip} </Typography>
+                <Typography >{ countryName }</Typography>
+                <Typography >{ telephone }</Typography>
 
                 <Divider sx={{my: 2}}/>
 
@@ -61,6 +74,35 @@ const SummaryPage = () => {
       </Grid>
     </ShopLayout>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async ({req}) => {
+   
+  const { token = '' } = req.cookies;
+  let isValidToken = false
+
+  try {
+      await jwt.isValidToken(token)
+      isValidToken = true
+  } catch (error) {
+      isValidToken = false
+  }
+
+  if (!isValidToken) {
+
+      return {
+          redirect: {
+              destination: ('/auth/login?page=/checkout/summary'),
+              permanent: false
+          }
+      }
+  }
+
+  return {
+      props: {
+          
+      }
+  }
 }
 
 export default SummaryPage

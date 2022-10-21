@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const CartList:FC<Props> = ({editable}) => {
-  const { cart, updateCartQuantity, removeCartProduct } = useContext(CartContext)
+  const { cart, updateCartQuantity, removeCartProduct} = useContext(CartContext)
 
   const onNewQuantityCartProduct = (value: number, product: ICartProduct) => {
       product.quantity += value
@@ -57,7 +57,7 @@ export const CartList:FC<Props> = ({editable}) => {
                     maxValue={ 10 }
                     onUpdatedQuantity= {(value) => onNewQuantityCartProduct(value, product)}
                    /> : 
-                   <Typography variant='h5'>{product.quantity}{product.quantity > 1 ? 'productos' : 'producto' }</Typography>
+                   <Typography variant='h5'>{product.quantity} {' '} {product.quantity > 1 ? 'productos' : 'producto' }</Typography>
                 }
                 
               </Box>

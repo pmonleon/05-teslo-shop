@@ -167,7 +167,7 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
 export const getStaticProps: GetStaticProps = async ({params}) => {
   const { slug = '' } = params as {slug:string}
   const product = await dbProducts.getProductBySlug( slug ) // your fetch function here 
-
+  
   if (!product) {
     return {
       redirect: {

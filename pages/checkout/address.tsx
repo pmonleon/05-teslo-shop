@@ -1,5 +1,5 @@
 import { Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { ShopLayout } from '../../components/layouts/ShopLayout';
 import { GetServerSideProps, NextPage } from 'next';
 import { countries, jwt } from '../../utils';
@@ -43,7 +43,7 @@ const getAddressFromCookies = ():FormData => {
 }
 
 const AddressPage:NextPage = () => {
-    const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
+    const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<FormData>({
         defaultValues: getAddressFromCookies()
     });
     const { push } = useRouter()
@@ -52,6 +52,11 @@ const AddressPage:NextPage = () => {
         updateCartAddress(data)
         push('/checkout/summary')
     }
+
+    useEffect(() => {
+     reset(getAddressFromCookies())
+    }, [reset])
+    
   
     return (
     <ShopLayout title='Dirección' pageDescriptiom='Confirmar dirección de destino'>
@@ -196,25 +201,25 @@ const AddressPage:NextPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async ({req}) => {
    
-    const { token = '' } = req.cookies;
-    let isValidToken = false
+    // const { token = '' } = req.cookies;
+    // let isValidToken = false
 
-    try {
-        await jwt.isValidToken(token)
-        isValidToken = true
-    } catch (error) {
-        isValidToken = false
-    }
+    // try {
+    //     await jwt.isValidToken(token)
+    //     isValidToken = true
+    // } catch (error) {
+    //     isValidToken = false
+    // }
 
-    if (!isValidToken) {
+    // if (!isValidToken) {
 
-        return {
-            redirect: {
-                destination: ('/auth/login?page=/checkout/address'),
-                permanent: false
-            }
-        }
-    }
+    //     return {
+    //         redirect: {
+    //             destination: ('/auth/login?page=/checkout/address'),
+    //             permanent: false
+    //         }
+    //     }
+    // }
 
     return {
         props: {

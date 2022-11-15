@@ -5,7 +5,9 @@ import { useContext, useState } from "react"
 import { useRouter } from 'next/router';
 import { ROUTES } from "../../constants/routes";
 import { AuthContext } from '../../context/auth/AuthContext';
-import { isValidToken } from '../../utils/jwt';
+import { CartContext } from '../../context/cart/CartContext';
+import { signOut } from 'next-auth/react';
+import Cookies from "js-cookie";
 
 
 
@@ -13,6 +15,7 @@ export const SideMenu = () => {
 
     const { isMenuOpen, toggleSideMenu } = useContext(UiContext)
     const { user, isLoggedIn, logoutUser  } = useContext(AuthContext)
+    const { cleanCartAndStorage  } = useContext(CartContext)
     const { push,asPath } = useRouter()
 
     const [searchTerm, setsearchTerm] = useState('')
@@ -28,7 +31,9 @@ export const SideMenu = () => {
     }
 
     const onLogout = () => {
-        toggleSideMenu(false) 
+        toggleSideMenu(false)
+        cleanCartAndStorage()
+        Cookies.remove('token')
         logoutUser()
     }
 

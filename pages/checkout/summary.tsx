@@ -1,20 +1,31 @@
 import { Box, Button, Card, CardContent, Divider, Grid, Link, Typography } from '@mui/material';
 import { count } from 'console';
+import Cookies from 'js-cookie';
 import { GetServerSideProps, NextPage } from 'next';
 import NextLink from 'next/link';
-import React, { useContext, useMemo } from 'react'
+import React, { useContext, useEffect, useMemo } from 'react'
 import { CartList, OrdenSummary } from '../../components/cart';
 import { ShopLayout } from '../../components/layouts/ShopLayout';
 import { CartContext } from '../../context';
 import { jwt } from '../../utils';
 import { countries } from '../../utils/countries';
+import { useRouter } from 'next/router';
 
 const SummaryPage:NextPage = () => {
   const { shippingAddres, numberOfItems } = useContext(CartContext)
-
+  const router = useRouter()
   if (!shippingAddres) { return <></> }
   const { firstName, lastName, address, address2, city, country, zip, telephone } = shippingAddres
 
+
+  useEffect(() => {
+    
+    if (!Cookies.get('firstName') || !address) {
+      router.push('/checkout/address')
+    }
+   
+  }, [])
+  
 
   const countryName = useMemo(() => countries.filter( item => item.code === country )[0].name, [countries])
 
@@ -78,25 +89,25 @@ const SummaryPage:NextPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async ({req}) => {
    
-  const { token = '' } = req.cookies;
+  // const { token = '' } = req.cookies;
   let isValidToken = false
 
-  try {
-      await jwt.isValidToken(token)
-      isValidToken = true
-  } catch (error) {
-      isValidToken = false
-  }
+  // try {
+  //     await jwt.isValidToken(token)
+  //     isValidToken = true
+  // } catch (error) {
+  //     isValidToken = false
+  // }
 
-  if (!isValidToken) {
+  // if (!isValidToken) {
 
-      return {
-          redirect: {
-              destination: ('/auth/login?page=/checkout/summary'),
-              permanent: false
-          }
-      }
-  }
+  //     return {
+  //         redirect: {
+  //             destination: ('/auth/login?page=/checkout/summary'),
+  //             permanent: false
+  //         }
+  //     }
+  // }
 
   return {
       props: {

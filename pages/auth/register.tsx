@@ -2,7 +2,7 @@ import { Box, Button, Grid, Link, TextField, Typography, Chip } from '@mui/mater
 import NextLink from 'next/link'
 import React, { useState, useContext } from 'react'
 import { AuthLayout } from '../../components/layouts'
-import { NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import tesloApi from '../../api/tesloApi';
 import axios from 'axios';
@@ -10,6 +10,9 @@ import { validations } from '../../utils';
 import { ErrorOutline } from '@mui/icons-material';
 import { AuthContext } from '../../context';
 import { useRouter } from 'next/router';
+import { signIn } from 'next-auth/react';
+import { unstable_getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]';
 
 
 type FormData = {
@@ -35,7 +38,8 @@ const RegisterPage:NextPage = () => {
             setshowError(true)
             return
         }
-         !!query?.page ? replace(query.page.toLocaleString()) : replace('/')
+        await signIn( 'credentials' ,{email, password})
+        // !!query?.page ? replace(query.page.toLocaleString()) : replace('/')
         // try {
         //     const { data } = await tesloApi.post('/user/register', {name, email, password})
         //     const { token , user } = data as {token:string, user:string}
@@ -142,6 +146,34 @@ const RegisterPage:NextPage = () => {
              </form>
         </AuthLayout>
        )
+}
+
+// You should use getServerSideProps when:
+// - Only if you need to pre-render a page whose data must be fetched at request time
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+    const { req, res, query } = ctx
+
+    // @ts-ignore
+    const session = await unstable_getServerSession(req, res, authOptions)
+
+    const { page = '/' } = query
+
+    if (session) {
+        return {
+            redirect: {
+                destination: page.toString(),
+                permanent: false
+            }
+         
+        }
+    }
+
+    return {
+        props: {
+            
+        }
+    }
 }
 
 export default RegisterPage

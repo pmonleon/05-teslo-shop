@@ -8,7 +8,7 @@ import { IProduct } from '../interfaces';
 
 
 const HomePage: NextPage = () => {
- 
+
 const { products, isError, isLoading} = useProdducts('/products')
 
   if (isError) return <div>failed to load</div>

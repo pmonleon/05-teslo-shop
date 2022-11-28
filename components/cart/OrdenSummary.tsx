@@ -1,10 +1,30 @@
 import { Grid, Typography } from '@mui/material'
-import React, { FC, useContext } from 'react'
+import React, { FC, useContext, useMemo } from 'react'
 import { CartContext } from '../../context/cart/CartContext';
 import { currency } from '../../utils';
 
-export const OrdenSummary: FC = () => {
-  const {total, subtotal, tax, numberOfItems} = useContext(CartContext)
+interface OrderValues {
+ orderValues?: { 
+  total: number 
+  subtotal: number 
+  tax:number 
+  numberOfItems: number
+ }
+}
+
+export const OrdenSummary: FC<OrderValues> = ({orderValues}) => {
+
+  const {total: totalContext, subtotal: subtotalContext, tax: taxContext, numberOfItems: numberOfItemsContext} = useContext(CartContext)
+  
+  const {total, subtotal, tax, numberOfItems} = useMemo( () => {
+    return {
+      total: orderValues?.total ? orderValues?.total : totalContext,
+      subtotal: orderValues?.subtotal ? orderValues?.subtotal : subtotalContext,
+      tax: orderValues?.tax ? orderValues?.tax : taxContext,
+      numberOfItems: orderValues?.numberOfItems ? orderValues?.numberOfItems : numberOfItemsContext
+    }
+  }, [orderValues])
+  
   return (
     <Grid container>
         <Grid item xs={6}>

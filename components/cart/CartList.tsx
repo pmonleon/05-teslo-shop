@@ -1,26 +1,30 @@
 import { Box, Button, CardActionArea, CardMedia, Grid, Link, Typography } from '@mui/material';
 import NextLink from 'next/link';
-import React, { FC, useContext } from 'react'
+import React, { FC, useContext, useMemo } from 'react'
 import { CartContext } from '../../context';
 import { ItemCounter } from '../ui';
 import { ICartProduct } from '../../interfaces/cart';
+import { IOrderItem } from '../../interfaces/order';
 
 
 interface Props {
   editable?: boolean
+  products?: IOrderItem[] 
 }
 
-export const CartList:FC<Props> = ({editable}) => {
-  const { cart, updateCartQuantity, removeCartProduct} = useContext(CartContext)
+export const CartList:FC<Props> = ({editable, products}) => {
+  const { cart:cartProducts, updateCartQuantity, removeCartProduct} = useContext(CartContext)
 
-  const onNewQuantityCartProduct = (value: number, product: ICartProduct) => {
+  const onNewQuantityCartProduct = (value: number, product: ICartProduct | IOrderItem) => {
       product.quantity += value
-      updateCartQuantity(product)
+      updateCartQuantity(product as ICartProduct)
   }
 
-  const onRemoveProductCart = (product:ICartProduct) => {
-    removeCartProduct(product)
+  const onRemoveProductCart = (product:ICartProduct | IOrderItem) => {
+    removeCartProduct(product as ICartProduct)
   }
+
+  const cart = useMemo(() => products ? products : cartProducts, [products, cartProducts])
   
   return (
     <>

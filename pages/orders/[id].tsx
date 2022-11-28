@@ -1,15 +1,53 @@
+import { GetServerSideProps, NextPage } from 'next'
 import { CreditCardOffOutlined, CreditScoreOutlined } from '@mui/icons-material';
 import { Box,  Card, CardContent, Chip, Divider, Grid, Link, Typography } from '@mui/material';
 import NextLink from 'next/link';
-import React from 'react'
+import React, { useMemo } from 'react'
 import { CartList, OrdenSummary } from '../../components/cart';
 import { ShopLayout } from '../../components/layouts/ShopLayout';
+import { unstable_getServerSession } from 'next-auth';
+import { dbOrders } from '../../database';
+import { authOptions } from '../api/auth/[...nextauth]';
+import { IOrder } from '../../interfaces';
 
-const OrderPage = () => {
+interface Props {
+  order: IOrder
+}
+
+const OrderPage:NextPage<Props> = ({order}) => {
+    // console.log(order)
+    const { 
+      _id,
+      user,
+      orderItems,
+      shippingAddress:{
+        firstName,
+        lastName,
+        address,
+        address2,
+        zip,
+        telephone,
+        city,
+        country
+      },
+      paymentResult,
+      numberOfItems,
+      tax,
+      total,
+      subtotal,
+      isPaid,
+      paidAt
+  } = order
+
+    const orderValues = useMemo(() =>{ 
+      return {total, tax, subtotal, numberOfItems} 
+    }, [total, tax, subtotal, numberOfItems])
+
     return (
-        <ShopLayout title='Resumen de orden 123456' pageDescriptiom='Resumen de la orden'>
-          <Typography variant='h1' component={'h1'}>Orden: ABC-123456</Typography>
-         <Chip 
+        <ShopLayout title={'Resumen de orden '+ _id } pageDescriptiom={'Resumen de la orden '+ _id} >
+          <Typography variant='h1' component={'h1'}>Orden: {_id}</Typography>
+    { !isPaid ? (
+        <Chip 
             sx={{
                 my:2
             }}
@@ -17,7 +55,7 @@ const OrderPage = () => {
             variant='outlined'
             color='error'
             icon={<CreditCardOffOutlined />}
-         />
+         />):(
          <Chip 
             sx={{
                 my:2
@@ -26,18 +64,21 @@ const OrderPage = () => {
             variant='outlined'
             color='success'
             icon={<CreditScoreOutlined />}
-         />
+         />)}
          
-          <Grid container>
+          <Grid container className='fadeIn'>
             <Grid item xs={12} sm={7} >
               {/* CartList */}
-              <CartList />
+              <CartList
+                editable = {false}
+                products ={orderItems}
+              />
             </Grid>
             <Grid item xs={12} sm={5} >
                 <Card className='sumary-card'>
                   <CardContent>
                     <Typography variant='h2'>
-                      Resumen (3 productos)
+                      Resumen ({numberOfItems} - {numberOfItems > 1 ? 'productos' : 'producto'})
                     </Typography>
     
                     <Divider sx={{my: 2}}/>
@@ -51,27 +92,19 @@ const OrderPage = () => {
                         </NextLink>
                     </Box>
                     
-                    <Typography >Luis Torres</Typography>
-                    <Typography >323 Algun lugar</Typography>
-                    <Typography >StyllVillage, HT-124</Typography>
-                    <Typography >Costa Rica</Typography>
-                    <Typography >+31 6234517</Typography>
+                    <Typography >{firstName} {lastName}</Typography>
+                    <Typography >{address} {address2 ? ` ,${address2}` : null} </Typography>
+                    <Typography >{city}, {zip}</Typography>
+                    <Typography >{country}</Typography>
+                    <Typography >{telephone}</Typography>
     
                     <Divider sx={{my: 2}}/>
-    
-                    <Box display={'flex'} justifyContent={'end'}>
-                        <NextLink href={'/cart'} passHref>
-                            <Link underline={'always'}>
-                                Editar
-                            </Link>
-                        </NextLink>
-                    </Box>
                    
-                    {/* OrdenSummary */}
-                    <OrdenSummary />
-                    <Box sx={{mt:3}}>
-                        {/* TODO */}
-                      <h1>Pagar</h1>
+                    <OrdenSummary 
+                       orderValues={orderValues}
+                    />
+                    <Box sx={{mt:3}} display='flex' flexDirection={'column'}>
+                     {isPaid ? (
                       <Chip 
                             sx={{
                                 my:2
@@ -80,7 +113,9 @@ const OrderPage = () => {
                             variant='outlined'
                             color='success'
                             icon={<CreditScoreOutlined />}
-                        />
+                        />) : (
+                          <h1>Pagar</h1>
+                        )}
                     </Box>
                   </CardContent>
                 </Card>
@@ -89,6 +124,53 @@ const OrderPage = () => {
           </Grid>
         </ShopLayout>
       )
+}
+
+// You should use getServerSideProps when:
+// - Only if you need to pre-render a page whose data must be fetched at request time
+
+export const getServerSideProps: GetServerSideProps = async ({req, res, query}) => {
+  
+  const { id = '' } = query
+  
+    // @ts-ignore
+  const session = await unstable_getServerSession(req, res, authOptions)
+  
+  if (!session) {
+    return {
+      redirect: {
+        destination: `/auth/login?page=/orders/${id}` ,
+        permanent:false
+      }
+    }
+  }
+  
+  const order = await dbOrders.getOrderById(id.toString())
+  
+  if (!order) {
+    return {
+      redirect: {
+        destination: `/orders/history` ,
+        permanent:false
+      }
+    }
+  }
+  // @ts-ignore
+  if ( order.user !== session?.user?._id) {
+    return {
+      redirect: {
+        destination: `/orders/history` ,
+        permanent:false
+      }
+    }
+  }
+
+
+  return {
+    props: {
+       order
+    }
+  }
 }
 
 export default OrderPage

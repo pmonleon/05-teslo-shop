@@ -1,20 +1,54 @@
 import { GetServerSideProps, NextPage } from 'next'
 import { CreditCardOffOutlined, CreditScoreOutlined } from '@mui/icons-material';
-import { Box,  Card, CardContent, Chip, Divider, Grid, Link, Typography } from '@mui/material';
+import { Box,  Card, CardContent, Chip, CircularProgress, Divider, Grid, Link, Typography } from '@mui/material';
 import NextLink from 'next/link';
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { CartList, OrdenSummary } from '../../components/cart';
 import { ShopLayout } from '../../components/layouts/ShopLayout';
 import { unstable_getServerSession } from 'next-auth';
 import { dbOrders } from '../../database';
 import { authOptions } from '../api/auth/[...nextauth]';
 import { IOrder } from '../../interfaces';
+import { PayPalButtons } from '@paypal/react-paypal-js';
+import { tesloAPi } from '../../api';
+import { useRouter } from 'next/router';
+
+export type INTENT = "CAPTURE" | "AUTHORIZE";
+
+export type LinkDescription = {
+  href: string;
+  rel: string;
+  method?: string;
+  title?: string;
+  mediaType?: string;
+  encType?: string;
+};
+
+export type OrderResponseBody = {
+  create_time?: string;
+  update_time?: string;
+  id: string;
+  intent?: INTENT;
+ //  payer: Partial<Payer>;
+//  purchase_units: PurchaseUnit[];
+  status:
+      | "COMPLETED"
+      | "SAVED"
+      | "APPROVED"
+      | "VOIDED"
+  
+      | "PAYER_ACTION_REQUIRED";
+  links?: LinkDescription[];
+};
+
 
 interface Props {
   order: IOrder
 }
 
 const OrderPage:NextPage<Props> = ({order}) => {
+    const router = useRouter()
+    const [isPaying, setIsPaying] = useState<Boolean>(false)
     // console.log(order)
     const { 
       _id,
@@ -42,6 +76,27 @@ const OrderPage:NextPage<Props> = ({order}) => {
     const orderValues = useMemo(() =>{ 
       return {total, tax, subtotal, numberOfItems} 
     }, [total, tax, subtotal, numberOfItems])
+
+    const onOrderCompleted = async(details: OrderResponseBody) =>{
+        if (details.status !== 'COMPLETED') {
+          return alert('No se completo orden en Paypal')
+        } 
+
+        setIsPaying(true)
+
+        try {
+            await tesloAPi.post('/orders/pay', {
+              transactionid: details.id, 
+              orderId: order._id
+            })
+
+          router.reload()
+        } catch (error) {
+          setIsPaying(false)
+          console.log({error})
+          alert('Error')
+        } 
+    } 
 
     return (
         <ShopLayout title={'Resumen de orden '+ _id } pageDescriptiom={'Resumen de la orden '+ _id} >
@@ -104,18 +159,49 @@ const OrderPage:NextPage<Props> = ({order}) => {
                        orderValues={orderValues}
                     />
                     <Box sx={{mt:3}} display='flex' flexDirection={'column'}>
-                     {isPaid ? (
-                      <Chip 
-                            sx={{
-                                my:2
-                            }}
-                            label={'Pagada'}
-                            variant='outlined'
-                            color='success'
-                            icon={<CreditScoreOutlined />}
-                        />) : (
-                          <h1>Pagar</h1>
+                     <Box sx={{
+                      display: isPaying ? 'flex' : 'none'
+                     }} display={'flex'} justifyContent={'center'} className='fadeIn'>
+                        <CircularProgress />
+                     </Box>
+
+                     <Box flexDirection={'column'} sx={{
+                      display: isPaying ? 'none' : 'flex',
+                      flex: 1
+                     }} >
+                            {isPaid ? (
+                              <Chip 
+                                    sx={{
+                                        my:2
+                                    }}
+                                    label={'Pagada'}
+                                    variant='outlined'
+                                    color='success'
+                                    icon={<CreditScoreOutlined />}
+                                />) : (
+                              <PayPalButtons
+                                  createOrder={(data, actions) => {
+                                    return actions.order.create({
+                                        purchase_units: [
+                                            {
+                                                amount: {
+                                                    value: order.total.toLocaleString(),
+                                                },
+                                            },
+                                        ],
+                                    });
+                                }}
+                                onApprove={(data, actions) => {
+                                    return actions?.order!?.capture().then((details) => {
+                                        console.log({details})
+                                        onOrderCompleted(details)            
+                                    });
+                                }}
+                              >
+
+                              </PayPalButtons>
                         )}
+                     </Box>                    
                     </Box>
                   </CardContent>
                 </Card>

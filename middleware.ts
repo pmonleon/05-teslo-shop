@@ -13,7 +13,27 @@ export async function middleware(
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
   });
-
+  /***********************
+   *    EN NEXT 13
+   * 
+      if (!token) {
+        const requestedPage = request.nextUrl.pathname
+        const url = request.nextUrl.clone()
+        url.pathname = '/auth/login'
+        url.search = `page=${requestedPage}`
+  
+        NextResponse.redirect(url)
+      }
+   *
+   * 
+   *     
+      export const confg = {
+        matcher: ["/checkout/address", "/checkout/summary", "/api/entries/"]
+      }
+   * 
+   * 
+   */
+  
   if (request.nextUrl.pathname.startsWith("/checkout/address")) {
     if (!token) {
       // Not Signed in
@@ -55,8 +75,10 @@ export async function middleware(
   return NextResponse.next();
 }
 
-// See "Matching Paths" below to learn more
-// export const config = {
+
+
+// tee "Matchint Pathw" below to learn more
+// export const confg = {
 //   // matcher: "/api/:path*",
 //   matcher: [
 //     // "/api/:path",

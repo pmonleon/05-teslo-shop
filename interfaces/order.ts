@@ -34,6 +34,7 @@ export interface IOrder {
   total: number;
   isPaid: boolean;
   paidAt?: string;
+  transactionId?: string;
   // crear createdAt y updatedAt
   // createdAt?: string;
   // updatedAt?: string;

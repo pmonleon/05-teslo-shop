@@ -9,7 +9,7 @@ export const checkUserEmailPassword = async (
   _id: string;
   email: string;
   name: string;
-  role: "admin" | "client";
+  role: ("admin" | "client")[] | ("admin" | "client");
 } | null> => {
   await db.connect();
   const user = await User.findOne({ email });
@@ -41,7 +41,7 @@ export const oAuthToDbUser = async (
   _id: string;
   email: string;
   name: string;
-  role: "admin" | "client";
+  role: ("admin" | "client")[] | ("admin" | "client");
 } | null> => {
   if (!oAuthEmail || !oAuthName) {
     return null;

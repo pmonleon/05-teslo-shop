@@ -1,7 +1,6 @@
 // middleware.ts
 import { NextFetchEvent, NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwt } from "./utils";
 import { getToken } from "next-auth/jwt";
 
 // This function can be marked `async` if using `await` inside
@@ -9,10 +8,21 @@ export async function middleware(
   request: NextRequest | any,
   ev: NextFetchEvent
 ) {
-  const token = await getToken({
+  const token: any = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
   });
+
+  // console.log({ token });
+
+  const validRoles = ["admin", "super-admin"];
+
+  if (request.nextUrl.pathname.startsWith("/admin")) {
+    if (!token || !validRoles.includes(token.user.role[0])) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
   /***********************
    *    EN NEXT 13
    * 
@@ -33,7 +43,7 @@ export async function middleware(
    * 
    * 
    */
-  
+
   if (request.nextUrl.pathname.startsWith("/checkout/address")) {
     if (!token) {
       // Not Signed in
@@ -75,7 +85,14 @@ export async function middleware(
   return NextResponse.next();
 }
 
-
+export const confg = {
+  matcher: [
+    "/checkout/address",
+    "/checkout/summary",
+    "/api/entries/",
+    "/admin",
+  ],
+};
 
 // tee "Matchint Pathw" below to learn more
 // export const confg = {

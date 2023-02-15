@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 
 type Data = {
   ok: boolean;

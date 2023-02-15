@@ -6,7 +6,7 @@ import { jwt } from "../../../utils";
 
 type Data =
   | { message: string }
-  | { token: string; user: { role: string; name: string; email: string } };
+  | { token: string; user: { role: string | string[]; name: string; email: string } };
 
 export default function handler(
   req: NextApiRequest,

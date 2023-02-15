@@ -5,7 +5,6 @@ import { ICartProduct } from '../../interfaces/cart';
 import Cookie from 'js-cookie'; 
 import { tesloAPi } from '../../api';
 import { IOrder } from '../../interfaces/order';
-import { ISize } from '../../interfaces';
 import axios from 'axios';
 
 
@@ -20,7 +19,8 @@ export interface CartState {
     subtotal: number;
     tax: number;
     total: number;
-    shippingAddres?: ShippingAddress
+    shippingAddres?: ShippingAddress,
+    createdAt: string | Date
 }
 
 export interface ShippingAddress {
@@ -43,7 +43,8 @@ const CART_INITIAL_STATE: CartState = {
     subtotal: 0,
     tax: 0,
     total: 0,
-    shippingAddres: undefined
+    shippingAddres: undefined,
+    createdAt: ''
 }
 
 
@@ -190,7 +191,6 @@ export const CartProvider: FC<Props> = ({children}) => {
       tax: state.tax,
       total: state.total,
       isPaid: false,
-      
     }
 
     try {

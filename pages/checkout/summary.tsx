@@ -14,19 +14,23 @@ import { useRouter } from 'next/router';
 const SummaryPage:NextPage = () => {
   const { shippingAddres, numberOfItems, createOrder } = useContext(CartContext)
   const router = useRouter()
-  if (!shippingAddres) { return <></> }
-  const { firstName, lastName, address, address2, city, country, zip, telephone } = shippingAddres
-
   const [isPosting, setIsPosting] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string>('')
-
+  
   useEffect(() => {
-    
     if (!Cookies.get('firstName') || !address) {
       router.push('/checkout/address')
     }
-   
   }, [])
+
+
+  const countryName = useMemo(() => countries.filter( item => item.code === country )[0].name, [countries])
+  
+  
+  if (!shippingAddres) { return <></> }
+  const { firstName, lastName, address, address2, city, country, zip, telephone } = shippingAddres
+
+
   
   const onCreateOrder = async():Promise<void> => {
       setIsPosting(true)
@@ -43,7 +47,6 @@ const SummaryPage:NextPage = () => {
       
   } 
 
-  const countryName = useMemo(() => countries.filter( item => item.code === country )[0].name, [countries])
 
   return (
     <ShopLayout title='Resumen de orden' pageDescriptiom='Resumen de la orden'>

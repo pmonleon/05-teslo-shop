@@ -1,4 +1,3 @@
-import { MonitorWeight } from '@mui/icons-material';
 import Head from 'next/head'
 import React, { FC, ReactNode } from 'react'
 import { Navbar, SideMenu } from '../ui';

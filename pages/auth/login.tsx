@@ -41,6 +41,7 @@ const LoginPage:NextPage = () => {
     
 
     useEffect(() => {  
+        
       if(asPath.includes('error=CredentialsSignin')){
         setshowError(true)
       }
@@ -52,7 +53,6 @@ const LoginPage:NextPage = () => {
 
     const onLoginUser: SubmitHandler<FormData> = async({email, password}) => { 
         setshowError(false)
-
         await signIn('credentials', { email, password })
             
         // const isValidLogin = await loginUser(email, password)

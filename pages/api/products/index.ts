@@ -31,5 +31,14 @@ const getProducts = async (req: NextApiRequest, res: NextApiResponse) => {
     .select("title images price inStock slug -_id")
     .lean();
   await db.disconnect();
-  return res.status(200).json(products);
+  const updatedProducts = products.map((product) => {
+    // procesar imagenes al subirlas al server
+    product.images = product.images.map((item) => {
+      return item.includes("http")
+        ? item
+        : `${process.env.HOST_NAME}products/${item}`;
+    });
+    return product;
+  });
+  return res.status(200).json(updatedProducts);
 };

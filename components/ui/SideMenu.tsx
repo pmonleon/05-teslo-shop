@@ -1,4 +1,4 @@
-import { Box, Divider, Drawer, IconButton, Input, InputAdornment, List, ListItem, ListItemIcon, ListItemText, ListSubheader } from "@mui/material"
+import { Box, Divider, Drawer, IconButton, Input, InputAdornment, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ListSubheader } from "@mui/material"
 import { AccountCircleOutlined, AdminPanelSettings, CategoryOutlined, ChaletOutlined, ConfirmationNumberOutlined, EscalatorWarningOutlined, FemaleOutlined, LoginOutlined, MaleOutlined, SearchOutlined, VpnKeyOutlined } from "@mui/icons-material"
 import { UiContext } from "../../context"
 import { useContext, useState } from "react"
@@ -52,7 +52,7 @@ export const SideMenu = () => {
             
             <List>
 
-                <ListItem>
+                <ListItemButton>
                     <Input
                         type='text'
                         placeholder="Buscar..."
@@ -70,69 +70,69 @@ export const SideMenu = () => {
                             </InputAdornment>
                         }
                     />
-                </ListItem>
+                </ListItemButton>
 
             { isLoggedIn &&  (
                 <>
-               <ListItem button>
+               <ListItemButton>
                     <ListItemIcon>
                         <AccountCircleOutlined/>
                     </ListItemIcon>
                     <ListItemText primary={'Perfil'} />
-                </ListItem>
+                </ListItemButton>
 
-                <ListItem button onClick = {() => navigateTo('/orders/history')}>
+                <ListItemButton  onClick = {() => navigateTo('/orders/history')}>
                     <ListItemIcon>
                         <ConfirmationNumberOutlined/>
                     </ListItemIcon>
                     <ListItemText primary={'Mis Ordenes'} />
-                </ListItem>
+                </ListItemButton>
                 </>
                 )}
 
 
-                <ListItem button sx={{ display: { xs: '', sm: 'none' } }} onClick={() => navigateTo(ROUTES.category.men)} >
+                <ListItemButton  sx={{ display: { xs: '', sm: 'none' } }} onClick={() => navigateTo(ROUTES.category.men)} >
                     <ListItemIcon>
                         <MaleOutlined/>
                     </ListItemIcon>
                     <ListItemText primary={'Hombres'} />
-                </ListItem>
+                </ListItemButton>
 
-                <ListItem button sx={{ display: { xs: '', sm: 'none' } }} onClick={() => navigateTo(ROUTES.category.women)}>
+                <ListItemButton sx={{ display: { xs: '', sm: 'none' } }} onClick={() => navigateTo(ROUTES.category.women)}>
                     <ListItemIcon>
                         <FemaleOutlined/>
                     </ListItemIcon>
                     <ListItemText primary={'Mujeres'} />
-                </ListItem>
+                </ListItemButton>
 
-                <ListItem button sx={{ display: { xs: '', sm: 'none' } }} onClick={() => navigateTo(ROUTES.category.kid)}>
+                <ListItemButton sx={{ display: { xs: '', sm: 'none' } }} onClick={() => navigateTo(ROUTES.category.kid)}>
                     <ListItemIcon>
                         <EscalatorWarningOutlined/>
                     </ListItemIcon>
                     <ListItemText primary={'Niños'} />
-                </ListItem>
+                </ListItemButton>
 
 
                 {
                     isLoggedIn 
                     ? (
 
-                        <ListItem button onClick={onLogout}>
+                        <ListItemButton onClick={onLogout}>
                             <ListItemIcon>
                                 <LoginOutlined/>
                             </ListItemIcon>
                             <ListItemText primary={'Salir'} />
-                        </ListItem>
+                        </ListItemButton>
 
                     )
                     : (
 
-                        <ListItem button onClick={onLogin}>
+                        <ListItemButton onClick={onLogin}>
                             <ListItemIcon>
                                 <VpnKeyOutlined/>
                             </ListItemIcon>
                             <ListItemText primary={'Ingresar'} />
-                        </ListItem>
+                        </ListItemButton>
                     )
                 }       
 
@@ -141,32 +141,32 @@ export const SideMenu = () => {
             { !!user && user?.role.includes('admin')  && (
              <>
                <ListSubheader>Admin Panel</ListSubheader>
-                <ListItem button onClick = {() => navigateTo('/admin')}>
+                <ListItemButton onClick = {() => navigateTo('/admin')}>
                     <ListItemIcon>
                         <ChaletOutlined/>
                     </ListItemIcon>
                     <ListItemText primary={'Panel administración'} />
-                </ListItem>
-                <ListItem button>
+                </ListItemButton>
+                <ListItemButton onClick = {() => navigateTo('/admin/products')}>
                     <ListItemIcon>
                         <CategoryOutlined/>
                     </ListItemIcon>
                     <ListItemText primary={'Productos'} />
-                </ListItem>
+                </ListItemButton>
                 
-                <ListItem button onClick = {() => navigateTo('/admin/orders')}>
+                <ListItemButton onClick = {() => navigateTo('/admin/orders')}>
                     <ListItemIcon>
                         <ConfirmationNumberOutlined/>
                     </ListItemIcon>
                     <ListItemText primary={'Ordenes'} />
-                </ListItem>
+                </ListItemButton>
 
-                <ListItem button onClick = {() => navigateTo('/admin/users')}>
+                <ListItemButton onClick = {() => navigateTo('/admin/users')}>
                     <ListItemIcon>
                         <AdminPanelSettings/>
                     </ListItemIcon>
                     <ListItemText primary={'Usuarios'} />
-                </ListItem>
+                </ListItemButton>
                 </>
                 )}
             </List>
